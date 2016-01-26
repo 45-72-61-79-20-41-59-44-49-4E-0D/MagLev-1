@@ -1,0 +1,53 @@
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android" 
+    android:layout_height="match_parent" android:layout_width="match_parent">
+
+
+    <!--Camera Settings-->
+    <PreferenceCategory
+        android:title="@string/pref_camera_title">
+
+        <ListPreference
+            android:key="picture_quality"
+            android:summary="Select Image Quality1"
+            android:title="@string/pref_picture_quality_title"/>
+
+        <ListPreference
+            android:key="video_quality"
+            android:summary="Select Video Quality1"
+            android:title="@string/pref_picture_quality_title"/>
+
+        <ListPreference
+            android:key="video_format"
+            android:summary="@string/pref_video_format_summary"
+            android:title="@string/pref_video_format_title"/>
+
+        <CheckBoxPreference
+            android:key="camera_startup"
+            android:summary="@string/pref_camera_startup_summary"
+            android:title="@string/pref_camera_startup_title"/>
+
+    </PreferenceCategory>
+
+
+    <!--User Settings-->
+    <PreferenceCategory
+        android:title="Other settings">
+
+        <EditTextPreference
+            android:key="edittext_preference"
+            android:title="Username"
+            android:summary="Username Summary"
+            android:dialogTitle="Title" />
+        <PreferenceScreen
+            android:key="Delete Data"
+            android:title="Title"
+            android:summary="User Sum"/>
+        <PreferenceScreen
+            android:key="user_deleteInfo_pref"
+            android:title="Delete Info"
+            android:summary="Delete Info Sum"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

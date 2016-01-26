@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\com.androidplot\androidplot-core\0.9.5\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="12bad0c7efff0d3c366feeaf17b1abcf22111ddb">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\classes-a571dd586830c2b55d02908948351557fd7d88e8.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\com.android.support\design\23.0.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="e5c61a3169221a89654ffcaaed47bba51cf071ad">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\classes-fbc41274430619945a951d2653b5f62a3c0bd337.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="c31e21b53ff2f74664e498248d01453a32e32d48">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\classes-d08d3f1d55c5c9b7e468ce670c29f471f93c97fa.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\com.android.support\recyclerview-v7\23.0.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="4356e230a981d1bbf047d848b91bc0d9b7c5bacc">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\classes-f9658161d946e363e052569a8987119a8172e7c7.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\23.0.1\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="d86429b0f0b3f3cafbeb78dda1b9d89119ccb05d">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\classes-2948ce07596833c3951ae74a96c0a70ededc2079.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\23.0.1\support-annotations-23.0.1.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="1fce89a6428c51467090d7f424e4c9c3dbd55f7e">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\support-annotations-23.0.1-f924d89265376ccdbadf40a1ea82cd04b7f72ead.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\com.android.support\support-v4\23.0.1\jars\libs\internal_impl-23.0.1.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="aa92916125166649d8ad4ba3940c3dd7515596d3">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\internal_impl-23.0.1-d6f67bd59452fb1a52ebdb4721958d20bed277c9.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\exploded-aar\MagLev-master.lib\opencv\unspecified\jars\classes.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="318e0dcf2b0af6450e5841bf7405be584a5b0d98">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\classes-963fefba0bbc6592dc307722dc0ecdb0a7662060.jar" />
+    </item>
+    <item
+        jar="C:\Users\Chung\.gradle\caches\modules-2\files-2.1\com.github.bumptech.glide\glide\3.6.0\a7537446a030da8eb0da4c71424d16c2589f6c4a\glide-3.6.0.jar"
+        jumboMode="false"
+        revision="23.0.0"
+        sha1="a7537446a030da8eb0da4c71424d16c2589f6c4a">
+        <dex dex="C:\Users\Chung\Desktop\MagLev-master\app\build\intermediates\pre-dexed\debug\glide-3.6.0-112168a0ae7dbd8bbc7ee8356beb89dd3c35759f.jar" />
+    </item>
+
+</items>

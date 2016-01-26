@@ -1,0 +1,63 @@
+<resources>
+    <string name="app_name">MagLev2</string>
+    <string name="action_settings">Settings</string>
+
+
+    <!-- Menu items -->
+    <string name="menu_connect">Connect</string>
+    <string name="menu_disconnect">Disconnect</string>
+    <string name="menu_scan">Scan</string>
+    <string name="menu_stop">Stop</string>
+    <string name="camera_text">Camera</string>
+    <string name="fullscreen_check_text">Full \nscreen</string>
+    <string name="menu_camera">Take Picture</string>
+    <string name="menu_video">Take Video</string>
+    <string name="menu_camera_intent">Camera Intent</string>
+    <string name="menu_video_intent">Video Intent</string>
+    <string name="menu_options">Options</string>
+
+    <!-- MagLev Control -->
+    <string name="maglev_title">MagLev Control</string>
+    <string name="brightness_text">LED Brightness (PWM)</string>
+    <string name="amplitude_text">Amplitude (PWM)</string>
+    <string name="frequency_text">Frequency (Hz)</string>
+    <string name="default_button_text">Defaults</string>
+    <string name="sendData_text">Send</string>
+    <string name="settings_scan">Scan</string>
+
+    <!-- Bluetooth -->
+    <string name="ble_not_supported">BLE not supported by this device!</string>
+    <string name="bluetooth_not_supported">Bluetooth not supported by this device</string>
+    <string name="unknown_device">Unknown device</string>
+    <string name="switch_off">Off!</string>
+
+    <!-- Preferences -->
+    <string name="pref_camera_title">Camera Preferences</string>
+    <string name="pref_picture_quality_title">Picture Quality</string>
+    <string name="pref_picture_quality_summary">Change the quality of the image</string>
+    <string name="pref_video_quality_title">Video Quality</string>
+    <string name="pref_video_quality_summary">Change the quality of video recording</string>
+    <string name="pref_video_format_title">Video Format</string>
+    <string name="pref_video_format_summary">Change the format of video recording</string>
+    <string name="pref_camera_startup_title">Camera On Startup</string>
+    <string name="pref_camera_startup_summary">Whether camera opens on app startup</string>
+
+    <!-- Camera Preview -->
+    <string name="camera_compatability_error">Sorry your camera does not support this setting</string>
+
+    <!-- Auto White Balance SeekBar -->
+    <string name="seek_bar_auto">Auto</string>
+    <string name="seek_bar_cloudy_daylight">Cloudy Daylight</string>
+    <string name="seek_bar_daylight">Daylight</string>
+    <string name="seek_bar_fluorescent">Fluorescent</string>
+    <string name="seek_bar_incandescent">Incandescent</string>
+    <string name="seek_bar_shade">Shade</string>
+    <string name="seek_bar_twilight">Twilight</string>
+    <string name="seek_bar_warm_fluorescent">Warm Fluorescent</string>
+
+    <!-- HistogramFrag -->
+    <string name="start_process">Start Process</string>
+    <string name="cancel_process">Cancel Process</string>
+
+
+</resources>

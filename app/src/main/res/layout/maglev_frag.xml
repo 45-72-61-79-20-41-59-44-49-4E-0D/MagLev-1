@@ -1,0 +1,130 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:orientation="vertical"
+                tools:context=".MainActivity">
+
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="45dp">
+
+        <TextView
+            android:layout_width="fill_parent" android:layout_height="wrap_content"
+            android:id="@+id/brightness_text"
+            android:text="@string/brightness_text"
+            android:layout_weight="0.5"
+            />
+
+        <TextView
+            android:layout_width="fill_parent" android:layout_height="wrap_content"
+            android:id="@+id/amplitude_text"
+            android:text="@string/amplitude_text"
+            android:layout_weight="0.5"
+            />
+    </LinearLayout>
+
+
+
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLength="3"
+            android:ems="10"
+            android:id="@+id/brightness_set" android:layout_weight="0.5"/>
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLength="3"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/amplitude_set" android:layout_weight="0.5"/>
+    </LinearLayout>
+
+
+
+    <TextView
+        android:layout_width="fill_parent" android:layout_height="wrap_content"
+        android:id="@+id/frequency_text"
+        android:text="@string/frequency_text"
+        />
+
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal"
+        android:layout_marginBottom="10dp">
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:maxLength="3"
+            android:id="@+id/frequency_set" android:layout_weight="0.5"/>
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/switch_off"
+            android:id="@+id/off_switch" android:layout_weight="0.5"/>
+
+
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="fill_parent"
+                  android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal">
+
+        <Button
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/default_button"
+            android:text="@string/default_button_text"
+            android:onClick="onDefaultClick"
+            android:layout_weight="0.33"
+
+            />
+
+        <Button
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/sendData_button"
+            android:text="@string/sendData_text"
+            android:onClick="onSendClick"
+            android:layout_weight="0.33"
+            />
+        <Button android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:id="@+id/camera_button"
+            android:text="@string/camera_text"
+            android:onClick="onCameraClick"
+            android:layout_weight="0.33"
+            />
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="@android:color/darker_gray"/>
+
+    <ListView xmlns:android="http://schemas.android.com/apk/res/android"
+                  android:id="@+id/device_layout"
+                  android:orientation="vertical"
+                  android:visibility="gone"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+    </ListView>
+
+
+
+</LinearLayout>
