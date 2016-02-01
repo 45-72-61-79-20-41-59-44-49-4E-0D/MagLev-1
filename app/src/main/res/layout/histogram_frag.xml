@@ -11,6 +11,15 @@
         android:layout_height="0dp"
         android:layout_weight="0.5">
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Large"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_centerInParent="true" />
+
     <ImageView
         android:id="@+id/resultView"
         android:layout_width="match_parent"

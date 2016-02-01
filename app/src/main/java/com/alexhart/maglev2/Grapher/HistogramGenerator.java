@@ -1,15 +1,13 @@
 package com.alexhart.maglev2.Grapher;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.util.Log;
 
-import com.alexhart.maglev2.R;
-import com.androidplot.xy.CatmullRomInterpolator;
+import com.alexhart.maglev2.ImageProcessor.Object;
+import com.androidplot.xy.BoundaryMode;
 import com.androidplot.xy.LineAndPointFormatter;
 import com.androidplot.xy.SimpleXYSeries;
 import com.androidplot.xy.StepFormatter;
@@ -18,54 +16,88 @@ import com.androidplot.xy.XYSeries;
 import com.androidplot.xy.XYStepMode;
 
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.Format;
-import java.text.ParsePosition;
 import java.util.Arrays;
-
-import android.graphics.DashPathEffect;
-import com.androidplot.util.PixelUtils;
-import com.androidplot.xy.*;
 
 /**
  * Created by Chung on 1/6/2016.
  */
-public class HistogramGenerator {
+public class HistogramGenerator{
 
     private final static String TAG = "HistogramGenerator";
+    private XYPlot plot;
+    private Number[] normalizeddata;
+    private Number[] data;
+    private int totalCount;
+    private int center;
+    private int topLine;
+    private int bottomLine;
+    LineAndPointFormatter series1Format;
+    Paint lineFill;
+    StepFormatter stepFormatter;
 
-    public HistogramGenerator(XYPlot plot, int interval, Context c) {
-
-        // y-vals to plot:
-        Number[] series1Numbers = {1, 2, 3, 4, 2, 3, 16, 20, 35, 24, 10, 4, 2, 3, 2, 2};
-        // create our series from our array of nums:
-        XYSeries series2 = new SimpleXYSeries(
-                Arrays.asList(series1Numbers),
-                SimpleXYSeries.ArrayFormat.Y_VALS_ONLY,
-                "1");
-
-        // Create a getFormatter to use for drawing a series using LineAndPointRenderer:
-        LineAndPointFormatter series1Format = new LineAndPointFormatter(
-                Color.rgb(0, 100, 0),                   // line color
-                Color.rgb(0, 100, 0),                   // point color
-                Color.rgb(100, 200, 0), null);                // fill color
-
+    public HistogramGenerator(XYPlot plot) {
+        totalCount = 0;
+        this.plot = plot;
+    }
+    private void graph(){
 
         // setup our line fill paint to be a slightly transparent gradient:
-        Paint lineFill = new Paint();
+        lineFill = new Paint();
         lineFill.setAlpha(200);
         lineFill.setShader(new LinearGradient(0, 0, 0, 250, Color.WHITE, Color.BLUE, Shader.TileMode.MIRROR));
 
-        StepFormatter stepFormatter  = new StepFormatter(Color.rgb(0, 0,0), Color.BLUE);
+        stepFormatter  = new StepFormatter(Color.rgb(0, 0,0), Color.BLUE);
         stepFormatter.getLinePaint().setStrokeWidth(1);
 
         stepFormatter.getLinePaint().setAntiAlias(false);
         stepFormatter.setFillPaint(lineFill);
-        plot.addSeries(series2, stepFormatter);
+        this.plot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 0.1);
+        this.plot.setRangeValueFormat(new DecimalFormat("0.0"));
+        this.plot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 1);
+        this.plot.setTicksPerDomainLabel(5);
+    }
+    public void update(Object detectedBeads){
+        int location = detectedBeads.getY();
+        if(location < topLine && location > bottomLine) {
+            int data_location = (location - bottomLine) / data.length;
+            int old_data = data[data_location].intValue();
+            totalCount++;
+            data[data_location] = old_data + 1;
+            double new_data =data[data_location].doubleValue();
+            normalizeddata[data_location] = new_data / totalCount;
+            // create our series from our array of nums:
+            XYSeries series2 = new SimpleXYSeries(
+                    Arrays.asList(normalizeddata),
+                    SimpleXYSeries.ArrayFormat.Y_VALS_ONLY,
+                    "1");
+            plot.clear();
+            graph();
+            plot.addSeries(series2, stepFormatter);
+            plot.redraw();
+        }
+    }
 
-        // adjust the domain/range ticks to make more sense; label per tick for range and label per 5 ticks domain:
-        plot.setRangeStep(XYStepMode.INCREMENT_BY_VAL, 1);
-        plot.setDomainStep(XYStepMode.INCREMENT_BY_VAL, 2);
+    public void resetData(){
+        for(int i = 0; i < data.length; i++){
+            data[i] = 0;
+            normalizeddata[i] = 0;
+
+        }
+//        if(plot != null) {
+//            plot.clear();
+//        }
+        totalCount = 0;
+    }
+
+    public void setCenter(int center){
+        this.center = center;
+    }
+    public void setDetectionArea(int topLine,int bottomLine){
+        this.topLine = topLine;
+        this.bottomLine = bottomLine;
+        this.data = new Number[20];
+        this.normalizeddata = new Number[20];
+        resetData();
     }
 }
 

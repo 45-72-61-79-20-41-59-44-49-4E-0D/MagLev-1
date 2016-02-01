@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.alexhart.maglev2.Grapher.HistogramGenerator;
 import com.alexhart.maglev2.ImageProcessor.ImageProcessor;
@@ -36,14 +37,15 @@ import org.opencv.android.OpenCVLoader;
  */
 public class HistogramFrag extends Fragment implements View.OnClickListener {
 
-    private Bitmap result;
     private MainActivity hostActivity;
     private Context context;
-    private ImageView imageV;
     private Button process_button;
     private Button cancel_button;
     private ImageProcessor imageP;
     private View v;
+    private HistogramGenerator hg;
+    private ProgressBar pgb;
+    private Display display;
 
     private AlertDialog alertDialog;
 
@@ -58,23 +60,20 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
+        display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        int width = size.x;
         int height = size.y;
         v = inflater.inflate(R.layout.histogram_frag, container, false);
-        ImageView imgv = (ImageView) v.findViewById(R.id.resultView);
-        imgv.getLayoutParams().width = width;
-        imgv.getLayoutParams().height = height;
-        imgv.requestLayout();
+        pgb = (ProgressBar) v.findViewById(R.id.progressBar);
+        pgb.setVisibility(View.INVISIBLE);
         alertDialog = new AlertDialog.Builder(hostActivity).create();
         process_button = (Button) v.findViewById(R.id.process_button);
         process_button.setOnClickListener(this);
         cancel_button = (Button) v.findViewById(R.id.stop_button);
         cancel_button.setOnClickListener(this);
-        //XYPlot plot = (XYPlot) v.findViewById(R.id.plot);
-        //HistogramGenerator hg = new HistogramGenerator(plot,1,context);
+        XYPlot plot = (XYPlot) v.findViewById(R.id.plot);
+        hg = new HistogramGenerator(plot);
 
         return v;
     }
@@ -98,7 +97,8 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
         public void onManagerConnected(int status) {
             if (status == LoaderCallbackInterface.SUCCESS) {
                 // now we can call opencv code !
-                imageP = new ImageProcessor(hostActivity.getdatafile(),v,hostActivity.isVideo());
+                pgb.setVisibility(View.VISIBLE);
+                imageP = new ImageProcessor(hostActivity.getdatafile(),v,hostActivity.isVideo(),hg,display);
                 imageP.start();
             }
             else {
@@ -122,6 +122,7 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
                 break;
             case R.id.stop_button:
                 if(imageP != null){
+                    pgb.setVisibility(View.INVISIBLE);
                     imageP.stopThread();
                 }
                 else{
