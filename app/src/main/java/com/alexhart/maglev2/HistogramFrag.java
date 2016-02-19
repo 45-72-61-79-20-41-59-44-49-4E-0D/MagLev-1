@@ -3,29 +3,23 @@ package com.alexhart.maglev2;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
+import android.content.DialogInterface;
 import android.graphics.Point;
-import android.graphics.PointF;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.FloatMath;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.alexhart.maglev2.Grapher.HistogramGenerator;
 import com.alexhart.maglev2.ImageProcessor.ImageProcessor;
-import com.alexhart.maglev2.MainActivity;
 import com.androidplot.xy.XYPlot;
+import com.github.mikephil.charting.charts.BarChart;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
@@ -46,6 +40,8 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
     private HistogramGenerator hg;
     private ProgressBar pgb;
     private Display display;
+    private int detectionMethod;
+    private final CharSequence[] options = {"FloodFill", "Hough Circle"};
 
     private AlertDialog alertDialog;
 
@@ -63,7 +59,6 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
         display = wm.getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
-        int height = size.y;
         v = inflater.inflate(R.layout.histogram_frag, container, false);
         pgb = (ProgressBar) v.findViewById(R.id.progressBar);
         pgb.setVisibility(View.INVISIBLE);
@@ -73,8 +68,8 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
         cancel_button = (Button) v.findViewById(R.id.stop_button);
         cancel_button.setOnClickListener(this);
         XYPlot plot = (XYPlot) v.findViewById(R.id.plot);
+        //BarChart barChart = (BarChart) v.findViewById(R.id.barchart);
         hg = new HistogramGenerator(plot);
-
         return v;
     }
 
@@ -98,32 +93,46 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
             if (status == LoaderCallbackInterface.SUCCESS) {
                 // now we can call opencv code !
                 pgb.setVisibility(View.VISIBLE);
-                imageP = new ImageProcessor(hostActivity.getdatafile(),v,hostActivity.isVideo(),hg,display);
+                imageP = new ImageProcessor(hostActivity.getdatafile(),v,hostActivity.isVideo(),hg,display,detectionMethod);
                 imageP.start();
             }
             else {
                 super.onManagerConnected(status);
             }
         }
-    };
+};
 
-    @Override
+@Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.process_button:
-                if( hostActivity.getdatafile() != null){
-                    Log.d(TAG,"START 3");
-                    OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, hostActivity, process);
-                }
-                else{
-                    alertDialog.setMessage("Please select a picture or video first");
-                    alertDialog.show();
-                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(hostActivity);
+                builder.setTitle("Choose a Detection Method");
+                builder.setItems(options, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (options[which].equals("FloodFill")) {
+                            detectionMethod = 0;
+                        } else if (options[which].equals("Hough Circle")) {
+                            detectionMethod = 1;
+                        }
+                        if( hostActivity.getdatafile() != null){
+                            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, hostActivity, process);
+                        }
+                        else{
+                            alertDialog.setMessage("Please select a picture or video first");
+                            alertDialog.show();
+                        }
+                    }
+                });
+                builder.show();
+
                 break;
             case R.id.stop_button:
                 if(imageP != null){
                     pgb.setVisibility(View.INVISIBLE);
                     imageP.stopThread();
+                    imageP = null;
                 }
                 else{
                     alertDialog.setMessage("Process is not in progress");

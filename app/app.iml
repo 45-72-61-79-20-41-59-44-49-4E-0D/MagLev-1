@@ -95,6 +95,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="recyclerview-v7-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="androidplot-core-0.9.5" level="project" />
+    <orderEntry type="library" exported="" name="mpandroidchartlibrary-2-1-6" level="project" />
     <orderEntry type="library" exported="" name="support-v4-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="design-23.0.1" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-23.0.1" level="project" />

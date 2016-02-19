@@ -40,8 +40,12 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             ap:label="Histogram"
-            ap:domainLabel="Height"
-            ap:rangeLabel="Counts" />
+            ap:domainLabel="Height (in 5 pixels)"
+            ap:rangeLabel="Probability" />
+        <!--<com.github.mikephil.charting.charts.BarChart-->
+            <!--android:id="@+id/barchart"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent" />-->
 
     </RelativeLayout>
 

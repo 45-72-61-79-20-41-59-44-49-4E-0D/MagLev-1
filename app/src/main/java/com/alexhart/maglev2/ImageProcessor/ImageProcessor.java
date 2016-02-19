@@ -58,6 +58,7 @@ public class ImageProcessor implements  Runnable{
     private int height;
     private int width;
     private int center;
+    private int detectionMethod;
     private HistogramGenerator histG;
 
     private final static String TAG = "ImageProcessor";
@@ -97,8 +98,13 @@ public class ImageProcessor implements  Runnable{
                         centerDetection(currentFrame);
                         gotCenterLine = true;
                     }
-                    dst = beadDetection(currentFrame,roi);//centerDetection(currentFrame);
-                    Imgproc.resize(dst,dst,new Size(targetImageView.getWidth(),targetImageView.getHeight()));
+                    if(detectionMethod == 0){
+                        dst = beadDetection(currentFrame,roi);
+                    }
+                    else if(detectionMethod == 1){
+                        dst = beadsDetection_HoughCircle(currentFrame, roi);
+                    }
+                    Imgproc.resize(dst, dst, new Size(targetImageView.getWidth(),targetImageView.getHeight()));
                     targetImageView.post(new Runnable() {
                         @Override
                         public void run() {
@@ -115,6 +121,7 @@ public class ImageProcessor implements  Runnable{
                         targetImageView.setVisibility(View.INVISIBLE);
                     }
                 });
+                histG.gaussianFit();
                 histG.resetData();
             }
     }
@@ -128,7 +135,7 @@ public class ImageProcessor implements  Runnable{
     }
 
     //Constructor for ImageProcessor
-    public ImageProcessor(File file,View v,boolean isVideo, HistogramGenerator histG, Display display) {
+    public ImageProcessor(File file,View v,boolean isVideo, HistogramGenerator histG, Display display, int detectionMethod) {
         src = new Mat();
         dst = new Mat();
         android.graphics.Point size = new android.graphics.Point();
@@ -142,6 +149,7 @@ public class ImageProcessor implements  Runnable{
         targetImageView.requestLayout();
         this.progressBar = (ProgressBar) v.findViewById(R.id.progressBar);
         this.histG = histG;
+        this.detectionMethod = detectionMethod;
         if(isVideo) {
             retriever = new MediaMetadataRetriever();
             retriever.setDataSource(file.getAbsolutePath());
@@ -153,28 +161,29 @@ public class ImageProcessor implements  Runnable{
         }
     }
 
-    private void centerDetection(Mat src){
+
+    private Mat centerDetection(Mat src){
         Mat edge = new Mat();
         Mat lines = new Mat();
         double centerLine = src.rows() / 2;
         topLine = 0;
         bottomLine = 0;
-        double topDifference = Double.POSITIVE_INFINITY;
-        double bottomDifference = Double.POSITIVE_INFINITY;
+        double topDifference = 0;// Double.POSITIVE_INFINITY;
+        double bottomDifference = 0;// Double.POSITIVE_INFINITY;
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(5,5));
         src = rgb2grey(src);
-        Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 131, 0);
+        Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 151, 0);
         Imgproc.Canny(src, edge, 10, 45);
         Imgproc.morphologyEx(edge, edge, Imgproc.MORPH_DILATE, kernel);
         Imgproc.HoughLinesP(edge, lines, 1, Math.PI / 180, 80, 250, 10);
         for(int i = 0; i < lines.rows() ; i++){
             double vec[] = lines.get(i,0);
             double y = vec[1];
-            if(y > centerLine && (Math.abs(centerLine - y) < topDifference)){
+            if(y > centerLine && (Math.abs(centerLine - y) > topDifference)){
                 topDifference = Math.abs(centerLine - y);
                 topLine = y;
             }
-            if(y < centerLine && (Math.abs(centerLine - y) < bottomDifference)){
+            if(y < centerLine && (Math.abs(centerLine - y) > bottomDifference)){
                 bottomDifference = Math.abs(centerLine - y);
                 bottomLine = y;
             }
@@ -182,6 +191,7 @@ public class ImageProcessor implements  Runnable{
         center = (int) ((topLine - bottomLine) / 2 + bottomLine);
         histG.setCenter(center);
         histG.setDetectionArea((int) topLine, (int) bottomLine);
+        return src;
     }
 
     // bwAreaOpen is used to remove objects that have less than lowerThresh
@@ -206,17 +216,15 @@ public class ImageProcessor implements  Runnable{
         Mat edge = new Mat();
         Mat src_grey = rgb2grey(src);
         Imgproc.Canny(src_grey, edge, 40, 115);
-        if(roi != null) {
-            edge = new Mat(edge, roi);
-        }
+        edge = new Mat(edge,roi);
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE,new Size(13,13));
         Imgproc.morphologyEx(edge, edge, Imgproc.MORPH_CLOSE, kernel);
         Imgproc.distanceTransform(edge, edge, Imgproc.CV_DIST_L1, 5);
         edge.convertTo(edge, CvType.CV_8U);
         findLocalMaxima(edge);
         Imgproc.line(src, new Point(0, center), new Point(src.cols(), center), new Scalar(0, 0, 255), 1);
-        Imgproc.line(src,new Point(0,topLine), new Point(src.cols(),topLine),new Scalar(255,153,255),2);
-        Imgproc.line(src,new Point(0,bottomLine), new Point(src.cols(),bottomLine),new Scalar(255,153,255),2);
+        Imgproc.line(src,new Point(0,topLine), new Point(src.cols(),topLine),new Scalar(127,249,245),2);
+        Imgproc.line(src,new Point(0,bottomLine), new Point(src.cols(),bottomLine),new Scalar(127,249,245),2);
         Imgproc.line(src, new Point(windowStart + roi.width, 0), new Point(windowStart + roi.width, roi.height), new Scalar(255, 0, 0), 1);
         Imgproc.line(src, new Point(windowStart, 0), new Point(windowStart, roi.height), new Scalar(255, 0, 0), 1);
         for(int i = 0; i < maxCandidates.length; i ++){
@@ -230,9 +238,27 @@ public class ImageProcessor implements  Runnable{
         return src;
     }
 
-    //Under development
-    private Mat beadDetection_HouhCircle(Mat src){
-
+    private Mat beadsDetection_HoughCircle(Mat src, Rect roi){
+        Mat src_grey = rgb2grey(src);
+        Mat circles = new Mat();
+        Imgproc.line(src, new Point(0, center), new Point(src.cols(), center), new Scalar(0, 0, 255), 1);
+        Imgproc.line(src,new Point(0,topLine), new Point(src.cols(),topLine),new Scalar(127,249,245),2);
+        Imgproc.line(src,new Point(0,bottomLine), new Point(src.cols(),bottomLine),new Scalar(127,249,245),2);
+        Imgproc.line(src, new Point(windowStart + roi.width, 0), new Point(windowStart + roi.width, roi.height), new Scalar(255, 0, 0), 1);
+        Imgproc.line(src, new Point(windowStart, 0), new Point(windowStart, roi.height), new Scalar(255, 0, 0), 1);
+        Imgproc.HoughCircles(src_grey, circles, Imgproc.HOUGH_GRADIENT, 1, 10, 40, 15, 5, 10);
+        if(circles.cols() > 0) {
+            for (int i = 0; i < circles.cols(); i++) {
+                double vCircle[] = circles.get(0, i);
+                if(Math.round(vCircle[0]) > windowStart && Math.round(vCircle[0]) < windowStart + 150) {
+                    Point center = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
+                    int radius = (int) Math.round(vCircle[2]);
+                    // draw the found circle
+                    Imgproc.circle(src, center, radius, new Scalar(0, 255, 0));
+                    histG.update(center);
+                }
+            }
+        }
         return src;
     }
 
