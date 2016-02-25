@@ -175,9 +175,11 @@ public class HistogramGenerator{
     public void setDetectionArea(int topLine,int bottomLine){
         this.topLine = topLine;
         this.bottomLine = bottomLine;
-        this.data = new Number[(topLine - bottomLine) / domainInterval];
-        this.normalizeddata = new Number[(topLine - bottomLine) / domainInterval];
-        this.gaussianFit = new Number[(topLine - bottomLine) / domainInterval];
+        System.out.println("heyhey topline " + topLine);
+        System.out.println("heyhey bottomline" + bottomLine);
+        this.data = new Number[Math.abs(topLine - bottomLine) / domainInterval];
+        this.normalizeddata = new Number[Math.abs(topLine - bottomLine) / domainInterval];
+        this.gaussianFit = new Number[Math.abs(topLine - bottomLine) / domainInterval];
         resetData();
     }
 

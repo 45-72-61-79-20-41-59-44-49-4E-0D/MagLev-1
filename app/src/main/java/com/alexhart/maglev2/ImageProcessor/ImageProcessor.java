@@ -172,7 +172,7 @@ public class ImageProcessor implements  Runnable{
         double bottomDifference = 0;// Double.POSITIVE_INFINITY;
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT,new Size(5,5));
         src = rgb2grey(src);
-        Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 151, 0);
+        Imgproc.adaptiveThreshold(src, src, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 141, 0);
         Imgproc.Canny(src, edge, 10, 45);
         Imgproc.morphologyEx(edge, edge, Imgproc.MORPH_DILATE, kernel);
         Imgproc.HoughLinesP(edge, lines, 1, Math.PI / 180, 80, 250, 10);
@@ -187,6 +187,12 @@ public class ImageProcessor implements  Runnable{
                 bottomDifference = Math.abs(centerLine - y);
                 bottomLine = y;
             }
+        }
+        if(topLine == 0 && bottomLine > 0){
+            topLine = src.rows() - bottomLine;
+        }
+        if(topLine > 0 && bottomLine == 0){
+            bottomLine = src.rows() - topLine;
         }
         center = (int) ((topLine - bottomLine) / 2 + bottomLine);
         histG.setCenter(center);
@@ -223,6 +229,7 @@ public class ImageProcessor implements  Runnable{
         edge.convertTo(edge, CvType.CV_8U);
         findLocalMaxima(edge);
         Imgproc.line(src, new Point(0, center), new Point(src.cols(), center), new Scalar(0, 0, 255), 1);
+        System.out.println("heyhey center" + center);
         Imgproc.line(src,new Point(0,topLine), new Point(src.cols(),topLine),new Scalar(127,249,245),2);
         Imgproc.line(src,new Point(0,bottomLine), new Point(src.cols(),bottomLine),new Scalar(127,249,245),2);
         Imgproc.line(src, new Point(windowStart + roi.width, 0), new Point(windowStart + roi.width, roi.height), new Scalar(255, 0, 0), 1);
