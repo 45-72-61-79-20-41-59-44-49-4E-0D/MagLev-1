@@ -19,7 +19,6 @@ import android.widget.ProgressBar;
 import com.alexhart.maglev2.Grapher.HistogramGenerator;
 import com.alexhart.maglev2.ImageProcessor.ImageProcessor;
 import com.androidplot.xy.XYPlot;
-import com.github.mikephil.charting.charts.BarChart;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;

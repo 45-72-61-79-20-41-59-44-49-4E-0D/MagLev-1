@@ -39,6 +39,10 @@
             style="@style/simple_xy"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            ap:rangeTickLabelTextSize = "@dimen/range_tick_text_size"
+            ap:rangeOriginTickLabelTextSize = "@dimen/range_tick_text_size"
+            ap:domainTickLabelTextSize = "@dimen/domain_tick_text_size"
+            ap:domainOriginTickLabelTextSize = "@dimen/domain_tick_text_size"
             ap:label="Histogram"
             ap:domainLabel="Height (in 5 pixels)"
             ap:rangeLabel="Probability" />

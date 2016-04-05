@@ -3,4 +3,6 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="range_tick_text_size">10dp</dimen>
+    <dimen name="domain_tick_text_size">10dp</dimen>
 </resources>
