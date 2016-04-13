@@ -71,6 +71,7 @@ public class ImageProcessor implements  Runnable{
     private final int FLOODFILL = 0;
     private final boolean ISVIDEO = true;
     private final boolean NOTVIDEO = false;
+    private boolean pause = false;
     private HistogramGenerator histG;
 
     private final static String TAG = "ImageProcessor";
@@ -107,6 +108,16 @@ public class ImageProcessor implements  Runnable{
                 for (int i = 0; i < timeInSeconds; i++) {
                     if(stop){
                         break;
+                    }
+                    synchronized (this) {
+                        if (pause) {
+                            try {
+                                wait();
+                                System.out.println("pppppppause");
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
                     bitmap = retriever.getFrameAtTime(i * 1000000);
                     Utils.bitmapToMat(bitmap, currentFrame);
@@ -183,6 +194,21 @@ public class ImageProcessor implements  Runnable{
         this.nearest_bottomline_array = new double[10];
         this.isVideo = isVideo;
         this.targetImageView = (ImageView) v.findViewById(R.id.resultView);
+        this.targetImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!pause){
+                    System.out.println("click and pause");
+                    pause();
+                    pause = true;
+                }
+                else{
+                    System.out.println("click and resume");
+                    resume();
+                    pause = false;
+                }
+            }
+        });
         targetImageView.getLayoutParams().width = width;
         targetImageView.getLayoutParams().height = height;
         targetImageView.requestLayout();
@@ -314,8 +340,6 @@ public class ImageProcessor implements  Runnable{
             nearest_topline = nearest_topline_array[0];
             nearest_bottomline = nearest_bottomline_array[0];
         }
-        System.out.println("nearest top " + nearest_topline);
-        System.out.println("nearest bot " + nearest_bottomline);
         slide_area = new Rect((int) windowStart,(int) (bottomLine + nearest_bottomline) , 150, (int) (nearest_topline - nearest_bottomline));
         return slide_area;
     }
@@ -430,7 +454,6 @@ public class ImageProcessor implements  Runnable{
         Mat distance = new Mat();
         Mat src_grey = rgb2grey(src);
         src_grey = new Mat(src_grey, roi);
-        Imgproc.GaussianBlur(src_grey,src_grey,new Size(3, 3), 0, 0);
         Imgproc.Canny(src_grey, edge, 5, 25);
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
         Imgproc.morphologyEx(edge, edge, Imgproc.MORPH_CLOSE, kernel);
@@ -455,20 +478,6 @@ public class ImageProcessor implements  Runnable{
                 }
             }
         }
-//        maxCandidates = null;
-//        Imgproc.distanceTransform(edge, distance, Imgproc.CV_DIST_L1, 5);
-//        distance.convertTo(distance, CvType.CV_8U);
-//        findLocalMaxima(distance,4);
-//        for(int i = 0; i < maxCandidates.length; i ++){
-//            Object localMax = maxCandidates[i];
-//            if(!localMax.isFlagged()) {
-//                if(maxCandidates[i].getY() > 40 && maxCandidates[i].getY() < roi.height - 40){
-//                    Point center_insrc = new Point(maxCandidates[i].getX() + windowStart, maxCandidates[i].getY() + bottomLine + nearest_bottomline);
-//                    Imgproc.circle(src, center_insrc, maxCandidates[i].getIntensity(), new Scalar(0, 0, 0));
-//                    histG.update(localMax);
-//                }
-//            }
-//        }
         return src;
     }
 
@@ -476,7 +485,7 @@ public class ImageProcessor implements  Runnable{
         Mat src_grey = rgb2grey(src);
         src_grey = new Mat(src_grey,roi);
         Mat circles = new Mat();
-        Imgproc.line(src,new Point(0,topLine), new Point(src.cols(),topLine),new Scalar(0,255,0),2);
+        Imgproc.line(src, new Point(0, topLine), new Point(src.cols(), topLine), new Scalar(0, 255, 0), 2);
         Imgproc.line(src,new Point(0,bottomLine), new Point(src.cols(),bottomLine),new Scalar(127,249,245),2);
         Imgproc.line(src, new Point(windowStart + roi.width, 0), new Point(windowStart + roi.width, src.rows()), new Scalar(255, 0, 0), 1);
         Imgproc.line(src, new Point(windowStart, 0), new Point(windowStart, src.rows()), new Scalar(255, 0, 0), 1);
@@ -712,5 +721,14 @@ public class ImageProcessor implements  Runnable{
 
     public void stopThread(){
         this.stop = true;
+    }
+    private void pause(){
+        this.pause = true;
+    }
+    private void resume(){
+        this.pause = false;
+        synchronized (this){
+            notify();
+        }
     }
 }

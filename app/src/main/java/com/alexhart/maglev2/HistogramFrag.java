@@ -40,6 +40,7 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
     private ProgressBar pgb;
     private Display display;
     private int detectionMethod;
+    private boolean ispaused;
     private final CharSequence[] options = {"FloodFill", "Hough Circle"};
 
     private AlertDialog alertDialog;
@@ -66,6 +67,7 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
         process_button.setOnClickListener(this);
         cancel_button = (Button) v.findViewById(R.id.stop_button);
         cancel_button.setOnClickListener(this);
+        ispaused = false;
         XYPlot plot = (XYPlot) v.findViewById(R.id.plot);
         //BarChart barChart = (BarChart) v.findViewById(R.id.barchart);
         hg = new HistogramGenerator(plot);
@@ -137,8 +139,6 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
                     alertDialog.setMessage("Process is not in progress");
                     alertDialog.show();
                 }
-
         }
-
     }
 }
