@@ -69,7 +69,6 @@ public class HistogramFrag extends Fragment implements View.OnClickListener {
         cancel_button.setOnClickListener(this);
         ispaused = false;
         XYPlot plot = (XYPlot) v.findViewById(R.id.plot);
-        //BarChart barChart = (BarChart) v.findViewById(R.id.barchart);
         hg = new HistogramGenerator(plot);
         return v;
     }

@@ -113,7 +113,6 @@ public class ImageProcessor implements  Runnable{
                         if (pause) {
                             try {
                                 wait();
-                                System.out.println("pppppppause");
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
@@ -168,6 +167,7 @@ public class ImageProcessor implements  Runnable{
                     }
                 });
                 histG.gaussianFit();
+                histG.verified();
                 histG.resetData();
             }
     }
@@ -176,6 +176,7 @@ public class ImageProcessor implements  Runnable{
         if(t == null){
             t = new Thread(this);
             stop = false;
+            histG.clearPlot();
             t.start();
         }
     }
@@ -194,21 +195,6 @@ public class ImageProcessor implements  Runnable{
         this.nearest_bottomline_array = new double[10];
         this.isVideo = isVideo;
         this.targetImageView = (ImageView) v.findViewById(R.id.resultView);
-        this.targetImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!pause){
-                    System.out.println("click and pause");
-                    pause();
-                    pause = true;
-                }
-                else{
-                    System.out.println("click and resume");
-                    resume();
-                    pause = false;
-                }
-            }
-        });
         targetImageView.getLayoutParams().width = width;
         targetImageView.getLayoutParams().height = height;
         targetImageView.requestLayout();
@@ -224,6 +210,19 @@ public class ImageProcessor implements  Runnable{
             bitmap = Bitmap.createScaledBitmap(bitmap,targetImageView.getWidth(),targetImageView.getHeight(),false);
             Utils.bitmapToMat(bitmap, src);
         }
+        this.targetImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(!pause){
+                    pause();
+                    pause = true;
+                }
+                else{
+                    resume();
+                    pause = false;
+                }
+            }
+        });
     }
 
     //This method uses simple probability to determine most likely top line, bottom line and cetner
@@ -297,7 +296,6 @@ public class ImageProcessor implements  Runnable{
         }
         center = (int) ((topLine - bottomLine) / 2 + bottomLine);
         histG.setCenter(center);
-        histG.setDetectionArea((int) topLine, (int) bottomLine, (int) nearest_topline, (int) nearest_bottomline);
     }
 
     private Rect slideDetectionP(boolean isVideo){
@@ -340,6 +338,7 @@ public class ImageProcessor implements  Runnable{
             nearest_topline = nearest_topline_array[0];
             nearest_bottomline = nearest_bottomline_array[0];
         }
+        histG.setDetectionArea((int) (nearest_topline + bottomLine), (int) (nearest_bottomline + bottomLine));
         slide_area = new Rect((int) windowStart,(int) (bottomLine + nearest_bottomline) , 150, (int) (nearest_topline - nearest_bottomline));
         return slide_area;
     }
@@ -361,7 +360,7 @@ public class ImageProcessor implements  Runnable{
         for(int i = 0; i < lines.rows() ; i++){
             double vec[] = lines.get(i,0);
             double y = vec[1];
-//            Imgproc.line(src,new Point(0,y), new Point(src.cols(),y),new Scalar(0,255,0),2);
+
             if(y > centerLine && (Math.abs(centerLine - y) > topDifference)){
                 topDifference = Math.abs(centerLine - y);
                 topLine = y;
@@ -387,6 +386,9 @@ public class ImageProcessor implements  Runnable{
 
     //Similar method as centerDetection(), different canny edge threshold and lines of interest are
     //the closest detected lines to center instead of the furtherest as in centerDetection()
+    //Note the nearest_bottomline and nearest_topline detected here are corresponding to the
+    //cropped image. Future uses of them must add bottomline to it to get the true location
+    //in the original/uncropped image
     private void slideDetection(Mat src, int ithframe){
         Rect betweem_magnet = new Rect((int) windowStart,(int) bottomLine,150, (int) (topLine - bottomLine));
         Mat grey_src = new Mat(src,betweem_magnet);
@@ -431,8 +433,8 @@ public class ImageProcessor implements  Runnable{
         }
     }
 
-    // bwAreaOpen is used to remove objects that have less than lowerThresh
-    private void bwAreaOpen(Mat binary_src, int lowerThresh){
+    // bwAreaOpen is used to remove objects that have more than threshold
+    private void bwAreaOpen(Mat binary_src, int thresh){
         if(binary_src.type() == CvType.CV_8U) {
             Mat hierarchy = new Mat();
             List<MatOfPoint> contours = new ArrayList<MatOfPoint>();
@@ -441,8 +443,7 @@ public class ImageProcessor implements  Runnable{
                 // Calculate contour area
                 Mat contour = contours.get(i);
                 double area = Imgproc.contourArea(contour);
-                // Remove small objects
-                if(area < lowerThresh){
+                if(area > thresh){
                     Imgproc.drawContours(binary_src,contours,i,new Scalar(0,0,0),-1);
                 }
             }
@@ -452,8 +453,11 @@ public class ImageProcessor implements  Runnable{
     private Mat beadDetection(Mat src, Rect roi){
         Mat edge = new Mat();
         Mat distance = new Mat();
+        ArrayList<Object> cells = new ArrayList<Object>();
         Mat src_grey = rgb2grey(src);
         src_grey = new Mat(src_grey, roi);
+        //Imgproc.threshold(src_grey,src,0,255,Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+        //bwAreaOpen(src,150);
         Imgproc.Canny(src_grey, edge, 5, 25);
         Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_ELLIPSE, new Size(7, 7));
         Imgproc.morphologyEx(edge, edge, Imgproc.MORPH_CLOSE, kernel);
@@ -471,13 +475,12 @@ public class ImageProcessor implements  Runnable{
             if(!localMax.isFlagged()) {
                 if(maxCandidates[i].getY() > 40 && maxCandidates[i].getY() < roi.height - 40){
                     Point center_insrc = new Point(maxCandidates[i].getX() + windowStart, maxCandidates[i].getY() + bottomLine + nearest_bottomline);
-                    Point center_inedge = new Point(maxCandidates[i].getX(), maxCandidates[i].getY());
-                    Imgproc.circle(edge, center_inedge, maxCandidates[i].getIntensity(), new Scalar(0, 0, 0),-1);
                     Imgproc.circle(src, center_insrc, maxCandidates[i].getIntensity(), new Scalar(0, 0, 0));
-                    histG.update(localMax);
+                    cells.add(localMax);
                 }
             }
         }
+        histG.update(cells);
         return src;
     }
 
@@ -485,13 +488,15 @@ public class ImageProcessor implements  Runnable{
         Mat src_grey = rgb2grey(src);
         src_grey = new Mat(src_grey,roi);
         Mat circles = new Mat();
+        ArrayList<Point> points = new ArrayList<Point>();
+        Imgproc.line(src, new Point(0, center), new Point(src.cols(), center), new Scalar(0, 0, 0), 2);
         Imgproc.line(src, new Point(0, topLine), new Point(src.cols(), topLine), new Scalar(0, 255, 0), 2);
         Imgproc.line(src,new Point(0,bottomLine), new Point(src.cols(),bottomLine),new Scalar(127,249,245),2);
         Imgproc.line(src, new Point(windowStart + roi.width, 0), new Point(windowStart + roi.width, src.rows()), new Scalar(255, 0, 0), 1);
         Imgproc.line(src, new Point(windowStart, 0), new Point(windowStart, src.rows()), new Scalar(255, 0, 0), 1);
         Imgproc.HoughCircles(src_grey, circles, Imgproc.HOUGH_GRADIENT, 1, 7, 20, 10, 5, 10);
-        Imgproc.line(src,new Point(0,nearest_bottomline), new Point(src.cols(),nearest_bottomline),new Scalar(0,255,0),2);
-        Imgproc.line(src, new Point(0, nearest_topline), new Point(src.cols(), nearest_topline), new Scalar(127, 249, 245), 2);
+        Imgproc.line(src,new Point(0,nearest_bottomline + bottomLine), new Point(src.cols(),nearest_bottomline + bottomLine),new Scalar(0,0,255),2);
+        Imgproc.line(src, new Point(0, nearest_topline + bottomLine), new Point(src.cols(), nearest_topline + bottomLine), new Scalar(240, 20, 240), 2);
         if(circles.cols() > 0) {
             for (int i = 0; i < circles.cols(); i++) {
                 double vCircle[] = circles.get(0, i);
@@ -499,10 +504,12 @@ public class ImageProcessor implements  Runnable{
                         Point center = new Point(Math.round(vCircle[0]) + windowStart, Math.round(vCircle[1]) + bottomLine + nearest_bottomline);
                         int radius = (int) Math.round(vCircle[2]);
                         // draw the found circle
-                        Imgproc.circle(src, center, radius, new Scalar(0, 0, 0));
-                        //histG.update(center);
+                        Imgproc.circle(src, center, radius, new Scalar(0, 255, 0));
+                        points.add(center);
+
                     }
             }
+            histG.update_hough(points);
         }
         return src;
     }
